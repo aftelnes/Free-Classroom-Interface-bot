@@ -6,7 +6,8 @@ from helpers.get_data import get_data
 
 
 async def create_lesson_num_keyboard():
-        lesson_num = await get_data('LESSONS_NUM_URL')
+        '''Функция создаёт клавиатуру с номерами пар'''
+        lesson_num = await get_data('LESSONS_NUM')
 
         lesson_num_ary = InlineKeyboardBuilder()
         for i in range(len(lesson_num)):

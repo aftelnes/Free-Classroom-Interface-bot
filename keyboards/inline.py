@@ -53,8 +53,8 @@ find_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ],
     [
         InlineKeyboardButton(
-            text=BACK_BTN,
-            callback_data='back_to_select_equipments'
+            text=RETURN_TO_START_BTN,
+            callback_data='select_date'
         ),
     ]
 ])

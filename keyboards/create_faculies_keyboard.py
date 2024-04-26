@@ -4,7 +4,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from consts.buttons import BACK_BTN, CONTINUE_BTN
 from helpers.get_data import get_data
 async def create_faculties_keyboard():
-    faculties = await get_data('FACULTIES_URL')
+    '''Функция создаёт клавиатуру с факультетами'''
+    faculties = await get_data('FACULTIES')
 
     faculties_ary = InlineKeyboardBuilder()
     for i in range(len(faculties)):
