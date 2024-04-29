@@ -4,7 +4,7 @@
 from aiogram import F
 from aiogram.filters import or_f
 from aiogram.types import CallbackQuery
-from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCallback
+from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart
@@ -28,6 +28,38 @@ from helpers.format_result import format_result
 
 callback_handlers_router = Router()
 
+#Тестирую другой вариант календаря
+from aiogram_calendar import DialogCalendar, DialogCalendarCallback
+@callback_handlers_router.message(F.text.lower() == 'dialog calendar w month')
+async def dialog_cal_handler_month(message: types.Message):
+    await message.answer(
+        "Please <b>select</b> a date:\n—————————————————— ",
+        reply_markup=await DialogCalendar(
+            locale='ru_ru'
+        ).start_calendar(year=2024, month=4)
+    )
+@callback_handlers_router.callback_query(DialogCalendarCallback.filter())
+async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: CallbackData):
+    selected, date = await DialogCalendar(
+        locale='ru_RU'
+    ).process_selection(callback_query, callback_data)
+    if selected:
+        await callback_query.message.answer(
+            f'You selected {date.strftime("%d/%m/%Y")}',
+        )
+
+@callback_handlers_router.message(F.text.lower() == 'navigation calendar')
+async def nav_cal_handler(message: types.Message):
+    await message.answer(
+        "Please select a date: ",
+        reply_markup=await SimpleCalendar(locale='ru_RU').start_calendar()
+    )
+
+#=================================
+
+
+
+
 @callback_handlers_router.message(CommandStart())
 async def start_cmd(message: types.Message, state: FSMContext):
     '''По команде /start показывает клавиатуру с кнопкой "Выбрать дату"'''
@@ -38,25 +70,25 @@ async def start_cmd(message: types.Message, state: FSMContext):
     await state.update_data(equipments_name='')
     await state.update_data(size=1)
 
-    await message.answer(text='Выберите дату', reply_markup=select_date)
+    await message.answer(text='Данный инструмент позволяет просто\nи быстро найти свободную аудиторию!', reply_markup=select_date)
 
 
 @callback_handlers_router.callback_query(or_f((F.data == 'select_date'), (F.data == 'back_to_select_date')))
 async def show_calendar_keyboard(callback_querry: CallbackQuery):
     '''Функция отправляет клавиатуру с календарём'''
     calendar = SimpleCalendar(
-        locale=await get_user_locale(callback_querry.from_user), show_alerts=True
+        locale='ru_RU', show_alerts=True
     )
     current_date = datetime.now()
     calendar.set_dates_range(datetime(current_date.year, current_date.month, current_date.day), datetime(2025, 12, 31))
-    await callback_querry.message.edit_reply_markup(
+    await callback_querry.message.edit_text(text='Выберите дату: \n——————————————————',
         reply_markup=await calendar.start_calendar(year=current_date.year, month=current_date.month)
     )
 @callback_handlers_router.callback_query(SimpleCalendarCallback.filter())
 async def callback_calendar_keyboard(callback_query: CallbackQuery, callback_data: CallbackData, state: FSMContext):
     '''Функция отправляет клавиатуру с выбором пары, после того, как была выбрада дата в календаре'''
     calendar = SimpleCalendar(
-        locale=await get_user_locale(callback_query.from_user), show_alerts=True
+        locale='ru_RU', show_alerts=True
     )
     current_date = datetime.now()
     calendar.set_dates_range(datetime(current_date.year, current_date.month, current_date.day), datetime(2025, 12, 31))
@@ -64,8 +96,8 @@ async def callback_calendar_keyboard(callback_query: CallbackQuery, callback_dat
     if selected:
         await state.update_data(date_from_user=date.strftime("%Y-%m-%d"))
         data = await state.get_data()
-        message_text = f'Дата: {data["date_from_user"]}'
-        await callback_query.message.edit_reply_markup(text=message_text, reply_markup=await create_lesson_num_keyboard())
+        message_text = f'Дата: <b>{data["date_from_user"]}</b>\nВыберите пару: \n——————————————————'
+        await callback_query.message.edit_text(text=message_text, reply_markup=await create_lesson_num_keyboard())
 
 
 
@@ -79,7 +111,7 @@ async def show_faculties_keyboard(callback_query: CallbackQuery, state: FSMConte
     '''Функция отправляет клавиатуру с выбором факультетов после выбора пары'''
     await state.update_data(lesson_num=compare_lesson_num(str(callback_query.data)))
     data = await state.get_data()
-    message_text = f'Дата: {data["date_from_user"]}\nПара: {data["lesson_num"]}'
+    message_text = f'Дата: <b>{data["date_from_user"]}</b>\nПара: <b>{data["lesson_num"]}</b>\nВыберите факультет: \n——————————————————'
     await callback_query.message.edit_text(text=message_text, reply_markup=await create_faculties_keyboard())
 
 @callback_handlers_router.callback_query(F.data.startswith('fac_'))
@@ -102,7 +134,10 @@ async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMC
         for button in row:
             if button.callback_data == callback_query.data:
                 button_text = button.text
-                updated_faculties_short_name += str(button_text) + ', '
+                if button_text in updated_faculties_short_name:
+                    await callback_query.answer(f"{button_text} уже добавлен")
+                    break
+                updated_faculties_short_name += str(button_text) + ' '
     #Добавляем текст кнопки (т.е. название факультета) в стор, откуда потом покажем пользователю, выбранные им факультеты
     await state.update_data(faculties_short_name=updated_faculties_short_name)
     #Реагируем на нажатие кнопки и показыавем текст кнопки (т.е. название факультета)
@@ -120,7 +155,7 @@ async def show_faculties_keyboard(callback_query: CallbackQuery):
 async def show_equipment_keyboard(callback_query: CallbackQuery, state: FSMContext):
     '''Функция отправляет клавиатуру с выбором оснащения после выбора факультетов'''
     data = await state.get_data()
-    message_text = f'Дата: {data["date_from_user"]}\nПара: {data["lesson_num"]}\nФакультеты: {data["faculties_short_name"]}'
+    message_text = f'Дата: <b>{data["date_from_user"]}</b>\nПара: <b>{data["lesson_num"]}</b>\nФакультеты: <b>{data["faculties_short_name"]}</b>\nВыберите оснащение: \n——————————————————'
     await callback_query.message.edit_text(text=message_text, reply_markup=await create_equipment_keyboard())
 @callback_handlers_router.callback_query(F.data.startswith('equip_'))
 async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMContext):
@@ -132,7 +167,7 @@ async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMC
     data = await state.get_data()
 
     updated_equipments_name = data["equipments_name"]
-    updated_equipments_name += str(compare_equip_name(str(callback_query.data))) + ', '
+    updated_equipments_name += str(compare_equip_name(str(callback_query.data))) + ' '
     await state.update_data(equipments_name=updated_equipments_name)
 
     await callback_query.answer(f'{compare_equip_name(callback_query.data)}')
@@ -149,7 +184,8 @@ async def show_equipment_keyboard(callback_query: CallbackQuery):
 async def show_size_keyboard(callback_query: CallbackQuery, state: FSMContext):
         '''Фнукия отправляет клавиатуру с выбором кол-ва необходимых посадочных мест'''
         data = await state.get_data()
-        message_text = f'Дата: {data["date_from_user"]}\nПара: {data["lesson_num"]}\nФакультеты: {data["faculties_short_name"]}\nОснащение: {data["equipments_name"]}'
+        message_text = (f'Дата: <b>{data["date_from_user"]}</b>\nПара: <b>{data["lesson_num"]}</b>\nФакультеты: '
+                        f'<b>{data["faculties_short_name"]}</b>\nОснащение: <b>{data["equipments_name"]}</b>\nВыберите вместимость: \n——————————————————')
         await callback_query.message.edit_text(text=message_text, reply_markup=select_size)
 @callback_handlers_router.callback_query(F.data.startswith('size_'))
 async def callback_size_keyboard(callback_querry: CallbackQuery, state: FSMContext):
@@ -166,7 +202,8 @@ async def callback_size_keyboard(callback_querry: CallbackQuery, state: FSMConte
 async def show_find_keyboard(callback_query: CallbackQuery, state: FSMContext):
     '''Функция отправляет клавиатуру с кнопкой "назад" и "найти" после выбора всех полей в предыдуших клавиатурах'''
     data = await state.get_data()
-    message_text = f'Дата: {data["date_from_user"]}\nПара: {data["lesson_num"]}\nФакультеты: {data["faculties_short_name"]}\nОснащение: {data["equipments_name"]}\nКол-во мест: {data["size"]}'
+    message_text = (f'Дата: <b>{data["date_from_user"]}</b>\nПара: <b>{data["lesson_num"]}</b>\nФакультеты: <b>{data["faculties_short_name"]}</b>\n'
+                    f'Оснащение: <b>{data["equipments_name"]}</b>\nКол-во мест: <b>{data["size"]}</b> \n——————————————————')
     await callback_query.message.edit_text(text=message_text, reply_markup=find_keyboard)
 
 @callback_handlers_router.callback_query(F.data == 'get_free_classrooms')

@@ -8,7 +8,7 @@ from consts.buttons import *
 select_date = InlineKeyboardMarkup(inline_keyboard=[
     [
         InlineKeyboardButton(
-            text=PICK_DATE,
+            text=BEGIN,
             callback_data='select_date'
         )
     ]
@@ -39,6 +39,10 @@ select_size = InlineKeyboardMarkup(inline_keyboard=[
         InlineKeyboardButton(
             text=CONTINUE_BTN,
             callback_data='all_data_is_selected'
+        ),
+        InlineKeyboardButton(
+            text=BACK_BTN,
+            callback_data='back_to_select_equipments'
         ),
     ]
 ])
