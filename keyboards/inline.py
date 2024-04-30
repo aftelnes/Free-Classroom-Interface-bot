@@ -5,7 +5,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from consts.buttons import *
 
-select_date = InlineKeyboardMarkup(inline_keyboard=[
+select_date_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [
         InlineKeyboardButton(
             text=BEGIN,
@@ -14,7 +14,7 @@ select_date = InlineKeyboardMarkup(inline_keyboard=[
     ]
 ])
 
-select_size = InlineKeyboardMarkup(inline_keyboard=[
+select_size_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [
         InlineKeyboardButton(
             text=SIZE_2O,
@@ -42,7 +42,7 @@ select_size = InlineKeyboardMarkup(inline_keyboard=[
         ),
         InlineKeyboardButton(
             text=BACK_BTN,
-            callback_data='back_to_select_equipments'
+            callback_data='select_equipments'
         ),
     ]
 ])
@@ -55,6 +55,15 @@ find_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         ),
 
     ],
+    [
+        InlineKeyboardButton(
+            text=RETURN_TO_START_BTN,
+            callback_data='select_date'
+        ),
+    ]
+])
+
+result_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [
         InlineKeyboardButton(
             text=RETURN_TO_START_BTN,

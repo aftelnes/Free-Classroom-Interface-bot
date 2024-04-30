@@ -13,8 +13,7 @@ from aiogram import types, Router
 from datetime import datetime
 
 from keyboards.create_lesson_num_keyboard import create_lesson_num_keyboard
-from keyboards.inline import find_keyboard, select_size
-from keyboards.inline import select_date
+from keyboards.inline import find_keyboard, select_size_keyboard ,select_date_keyboard, result_keyboard
 from keyboards.create_faculies_keyboard import create_faculties_keyboard
 from keyboards.create_equipment_keyboard import create_equipment_keyboard
 
@@ -70,7 +69,7 @@ async def start_cmd(message: types.Message, state: FSMContext):
     await state.update_data(equipments_name='')
     await state.update_data(size=1)
 
-    await message.answer(text='Данный инструмент позволяет просто\nи быстро найти свободную аудиторию!', reply_markup=select_date)
+    await message.answer(text='Данный инструмент позволяет просто\nи быстро найти свободную аудиторию!', reply_markup=select_date_keyboard)
 
 
 @callback_handlers_router.callback_query(or_f((F.data == 'select_date'), (F.data == 'back_to_select_date')))
@@ -144,7 +143,7 @@ async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMC
     await callback_query.answer(button_text)
     #======================================================================
 
-@callback_handlers_router.callback_query(F.data == 'back_to_select_faculties')
+@callback_handlers_router.callback_query(F.data == 'select_faculties')
 async def show_faculties_keyboard(callback_query: CallbackQuery):
     '''Функция отправляет клавиатуру с выбором факультетов после нажатия на кнопку "назад" в меню выбора оснащения'''
     await callback_query.message.edit_reply_markup(reply_markup=await create_faculties_keyboard())
@@ -172,13 +171,6 @@ async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMC
 
     await callback_query.answer(f'{compare_equip_name(callback_query.data)}')
 
-@callback_handlers_router.callback_query(F.data == 'back_to_select_equipments')
-async def show_equipment_keyboard(callback_query: CallbackQuery):
-    '''Функция отправляет клавиатуру с выбором оснащения после нажатия на кнопку "назад"'''
-    await callback_query.message.edit_reply_markup(reply_markup=await create_equipment_keyboard())
-
-
-
 
 @callback_handlers_router.callback_query(F.data == 'select_size')
 async def show_size_keyboard(callback_query: CallbackQuery, state: FSMContext):
@@ -186,7 +178,7 @@ async def show_size_keyboard(callback_query: CallbackQuery, state: FSMContext):
         data = await state.get_data()
         message_text = (f'Дата: <b>{data["date_from_user"]}</b>\nПара: <b>{data["lesson_num"]}</b>\nФакультеты: '
                         f'<b>{data["faculties_short_name"]}</b>\nОснащение: <b>{data["equipments_name"]}</b>\nВыберите вместимость: \n——————————————————')
-        await callback_query.message.edit_text(text=message_text, reply_markup=select_size)
+        await callback_query.message.edit_text(text=message_text, reply_markup=select_size_keyboard)
 @callback_handlers_router.callback_query(F.data.startswith('size_'))
 async def callback_size_keyboard(callback_querry: CallbackQuery, state: FSMContext):
         await state.update_data(size=int(callback_querry.data[5:]))
@@ -207,7 +199,7 @@ async def show_find_keyboard(callback_query: CallbackQuery, state: FSMContext):
     await callback_query.message.edit_text(text=message_text, reply_markup=find_keyboard)
 
 @callback_handlers_router.callback_query(F.data == 'get_free_classrooms')
-async def show_find_keyboard(callback_query: CallbackQuery, state: FSMContext):
+async def show_result(callback_query: CallbackQuery, state: FSMContext):
     '''Функция отпралвяет сообщения с ответом, поулченным с API'''
     data = await state.get_data()
 
@@ -219,7 +211,15 @@ async def show_find_keyboard(callback_query: CallbackQuery, state: FSMContext):
         'size': data["size"]
     }
 
+
+
     response = await get_data(data_type='FREE_PLACES', params=params_to_request)
     free_places = format_result(response)
 
-    await callback_query.message.answer(text=free_places)
+    await state.update_data(faculties=[])
+    await state.update_data(equipments=[])
+    await state.update_data(faculties_short_name='')
+    await state.update_data(equipments_name='')
+    await state.update_data(size=1)
+
+    await callback_query.message.edit_text(text=free_places, reply_markup=result_keyboard)
