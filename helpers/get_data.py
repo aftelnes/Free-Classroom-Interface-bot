@@ -4,8 +4,6 @@ from api._base import request
 async def get_data(data_type: str, params=None) -> list:
     """Функция получения списка факеультетов или оснащения"""
 
-    print('params = ', params)
-
     if data_type == 'FACULTIES':
         url_endpoint = config.base_config.FACULTIES_URL
     elif data_type == 'EQUIPMENTS':

@@ -231,4 +231,4 @@ async def show_result(callback_query: CallbackQuery, state: FSMContext):
     await state.update_data(equipments_name='')
     await state.update_data(size=1)
 
-    await callback_query.message.edit_text(text=free_places, reply_markup=result_keyboard)
+    await callback_query.message.edit_text(text=free_places, reply_markup=result_keyboard, parse_mode=ParseMode.HTML)
