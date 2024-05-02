@@ -1,13 +1,14 @@
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from consts.buttons import BACK_BTN
 from helpers.get_data import get_data
+from consts.buttons import BACK_BTN
+from api.consts import LESSONS_NUM_ENDPOINT
 
 
 async def create_lesson_num_keyboard():
         '''Функция создаёт клавиатуру с номерами пар'''
-        lesson_num = await get_data('LESSONS_NUM')
+        lesson_num = await get_data(endpoint=LESSONS_NUM_ENDPOINT)
 
         lesson_num_ary = InlineKeyboardBuilder()
         for i in range(len(lesson_num)):

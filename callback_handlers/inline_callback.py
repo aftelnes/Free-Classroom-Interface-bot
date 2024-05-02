@@ -20,7 +20,9 @@ from keyboards.create_equipment_keyboard import create_equipment_keyboard
 from helpers.compare_lesson_num import compare_lesson_num
 from helpers.get_data import get_data
 from helpers.format_result import format_result
+from helpers.create_messages import create_message
 
+from api.consts import FREE_PLACES_ENDPOINT
 
 from aiogram.enums import ParseMode
 
@@ -68,23 +70,23 @@ async def start_cmd(message: types.Message, state: FSMContext):
     await state.update_data(equipments_name='')
     await state.update_data(size=1)
 
-    await message.answer(text='Данный инструмент позволяет просто\nи быстро найти свободную аудиторию!', reply_markup=select_date_keyboard)
+    await message.answer(text=create_message(params='', type='start'), reply_markup=select_date_keyboard)
 
 
 @callback_handlers_router.callback_query(or_f((F.data == 'select_date'), (F.data == 'back_to_select_date')))
 async def show_calendar_keyboard(callback_querry: CallbackQuery):
-    '''Функция отправляет клавиатуру с календарём'''
+    """Функция отправляет клавиатуру с календарём"""
     calendar = SimpleCalendar(
         locale='ru_RU', show_alerts=True
     )
     current_date = datetime.now()
     calendar.set_dates_range(datetime(current_date.year, current_date.month, current_date.day), datetime(2025, 12, 31))
-    await callback_querry.message.edit_text(text='Выберите дату: \n——————————————————',
+    await callback_querry.message.edit_text(text=create_message(params='', type='select_data'),
         reply_markup=await calendar.start_calendar(year=current_date.year, month=current_date.month), parse_mode=ParseMode.HTML
     )
 @callback_handlers_router.callback_query(SimpleCalendarCallback.filter())
 async def callback_calendar_keyboard(callback_query: CallbackQuery, callback_data: CallbackData, state: FSMContext):
-    '''Функция отправляет клавиатуру с выбором пары, после того, как была выбрада дата в календаре'''
+    """Функция отправляет клавиатуру с выбором пары, после того, как была выбрада дата в календаре"""
     calendar = SimpleCalendar(
         locale='ru_RU', show_alerts=True
     )
@@ -95,14 +97,14 @@ async def callback_calendar_keyboard(callback_query: CallbackQuery, callback_dat
         await state.update_data(date_from_user=date.strftime("%Y-%m-%d"))
         data = await state.get_data()
         # TODO сообщение формируется вот таким диким образом, каждый раз в функции выдачи клавиатуры, можешь подсказать как это лучше вынести?
-        message_text = f'Дата: <b>{data["date_from_user"]}</b>\nВыберите пару: \n——————————————————'
-        await callback_query.message.edit_text(text=message_text, reply_markup=await create_lesson_num_keyboard(), parse_mode=ParseMode.HTML)
+        await callback_query.message.edit_text(text=create_message(params=data, type='select_les_num'),
+                                               reply_markup=await create_lesson_num_keyboard(), parse_mode=ParseMode.HTML)
 
 
 
 @callback_handlers_router.callback_query(F.data == 'back_to_select_lesson_num')
 async def show_lesson_num_keyboard(callback_query: CallbackQuery):
-    '''Функция отправляет клавиатуру с выбором номера пары, при нажитие кнопки "назад" в меню клавиатуры факультетов '''
+    """Функция отправляет клавиатуру с выбором номера пары, при нажитие кнопки "назад" в меню клавиатуры факультетов"""
     await callback_query.message.edit_reply_markup(reply_markup=await create_lesson_num_keyboard())
 
 @callback_handlers_router.callback_query(F.data.startswith('les_'))
@@ -110,12 +112,11 @@ async def show_faculties_keyboard(callback_query: CallbackQuery, state: FSMConte
     '''Функция отправляет клавиатуру с выбором факультетов после выбора пары'''
     await state.update_data(lesson_num=compare_lesson_num(str(callback_query.data)))
     data = await state.get_data()
-    message_text = f'Дата: <b>{data["date_from_user"]}</b>\nПара: <b>{data["lesson_num"]}</b>\nВыберите факультет: \n——————————————————'
-    await callback_query.message.edit_text(text=message_text, reply_markup=await create_faculties_keyboard(), parse_mode=ParseMode.HTML)
+    await callback_query.message.edit_text(text=create_message(params=data, type='select_faculty'), reply_markup=await create_faculties_keyboard(), parse_mode=ParseMode.HTML)
 
 @callback_handlers_router.callback_query(F.data.startswith('fac_'))
 async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMContext):
-    '''Функция реагирует на выбор факультетов'''
+    """Функция реагирует на выбор факультетов"""
     data = await state.get_data()
 
     #TODO Убрал функции заглушки для факультетов compare... но теперь захламился код уже непосредственно в логике колбэков
@@ -145,20 +146,20 @@ async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMC
 
 @callback_handlers_router.callback_query(F.data == 'select_faculties')
 async def show_faculties_keyboard(callback_query: CallbackQuery):
-    '''Функция отправляет клавиатуру с выбором факультетов после нажатия на кнопку "назад" в меню выбора оснащения'''
+    """Функция отправляет клавиатуру с выбором факультетов после нажатия на кнопку "назад" в меню выбора оснащения"""
     await callback_query.message.edit_reply_markup(reply_markup=await create_faculties_keyboard())
 
 
 
 @callback_handlers_router.callback_query(F.data == 'select_equipments')
 async def show_equipment_keyboard(callback_query: CallbackQuery, state: FSMContext):
-    '''Функция отправляет клавиатуру с выбором оснащения после выбора факультетов'''
+    """Функция отправляет клавиатуру с выбором оснащения после выбора факультетов"""
     data = await state.get_data()
-    message_text = f'Дата: <b>{data["date_from_user"]}</b>\nПара: <b>{data["lesson_num"]}</b>\nФакультеты: <b>{data["faculties_short_name"]}</b>\nВыберите оснащение: \n——————————————————'
-    await callback_query.message.edit_text(text=message_text, reply_markup=await create_equipment_keyboard(), parse_mode=ParseMode.HTML)
+    await callback_query.message.edit_text(text=create_message(params=data, type='select_equipment'),
+                                           reply_markup=await create_equipment_keyboard(), parse_mode=ParseMode.HTML)
 @callback_handlers_router.callback_query(F.data.startswith('equip_'))
 async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMContext):
-    '''Функция реагирует на выбор оснащения'''
+    """Функция реагирует на выбор оснащения"""
     data = await state.get_data()
     updated_equipments = data["equipments"]
     updated_equipments.append(int(callback_query.data[6:]))
@@ -183,11 +184,10 @@ async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMC
 
 @callback_handlers_router.callback_query(F.data == 'select_size')
 async def show_size_keyboard(callback_query: CallbackQuery, state: FSMContext):
-        '''Фнукия отправляет клавиатуру с выбором кол-ва необходимых посадочных мест'''
+        """Фнукия отправляет клавиатуру с выбором кол-ва необходимых посадочных мест"""
         data = await state.get_data()
-        message_text = (f'Дата: <b>{data["date_from_user"]}</b>\nПара: <b>{data["lesson_num"]}</b>\nФакультеты: '
-                        f'<b>{data["faculties_short_name"]}</b>\nОснащение: <b>{data["equipments_name"]}</b>\nВыберите вместимость: \n——————————————————')
-        await callback_query.message.edit_text(text=message_text, reply_markup=select_size_keyboard, parse_mode=ParseMode.HTML)
+        await callback_query.message.edit_text(text=create_message(params=data, type='select_size'),
+                                               reply_markup=select_size_keyboard, parse_mode=ParseMode.HTML)
 @callback_handlers_router.callback_query(F.data.startswith('size_'))
 async def callback_size_keyboard(callback_querry: CallbackQuery, state: FSMContext):
         await state.update_data(size=int(callback_querry.data[5:]))
@@ -201,15 +201,14 @@ async def callback_size_keyboard(callback_querry: CallbackQuery, state: FSMConte
 
 @callback_handlers_router.callback_query(F.data == 'all_data_is_selected')
 async def show_find_keyboard(callback_query: CallbackQuery, state: FSMContext):
-    '''Функция отправляет клавиатуру с кнопкой "назад" и "найти" после выбора всех полей в предыдуших клавиатурах'''
+    """Функция отправляет клавиатуру с кнопкой "назад" и "найти" после выбора всех полей в предыдуших клавиатурах"""
     data = await state.get_data()
-    message_text = (f'Дата: <b>{data["date_from_user"]}</b>\nПара: <b>{data["lesson_num"]}</b>\nФакультеты: <b>{data["faculties_short_name"]}</b>\n'
-                    f'Оснащение: <b>{data["equipments_name"]}</b>\nКол-во мест: <b>{data["size"]}</b> \n——————————————————')
-    await callback_query.message.edit_text(text=message_text, reply_markup=find_keyboard, parse_mode=ParseMode.HTML)
+    await callback_query.message.edit_text(text=create_message(params=data, type='find'),
+                                           reply_markup=find_keyboard, parse_mode=ParseMode.HTML)
 
 @callback_handlers_router.callback_query(F.data == 'get_free_classrooms')
 async def show_result(callback_query: CallbackQuery, state: FSMContext):
-    '''Функция отпралвяет сообщения с ответом, поулченным с API'''
+    """Функция отпралвяет сообщения с ответом, поулченным с API"""
     data = await state.get_data()
 
     params_to_request = {
@@ -222,7 +221,7 @@ async def show_result(callback_query: CallbackQuery, state: FSMContext):
 
 
 
-    response = await get_data(data_type='FREE_PLACES', params=params_to_request)
+    response = await get_data(endpoint=FREE_PLACES_ENDPOINT, params=params_to_request)
     free_places = format_result(response)
 
     await state.update_data(faculties=[])
