@@ -8,7 +8,7 @@ import config
 from callback_handlers.inline_callback import callback_handlers_router
 
 
-bot = Bot(token=config.base_config.BOT_TOKEN)
+bot = Bot(token=config.base_config.BOT_TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 dp.include_routers(callback_handlers_router)
 
