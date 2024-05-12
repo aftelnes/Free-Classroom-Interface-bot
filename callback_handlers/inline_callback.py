@@ -24,7 +24,8 @@ from helpers.create_messages import create_message
 
 from api.consts import FREE_PLACES_ENDPOINT
 
-from aiogram.enums import ParseMode
+from keyboards.create_faculies_keyboard_test import (create_faculties_state, create_faculties_keyboard_test,
+                                                     change_faculties_keyboard)
 
 callback_handlers_router = Router()
 
@@ -70,6 +71,9 @@ async def start_cmd(message: types.Message, state: FSMContext):
     await state.update_data(equipments_name='')
     await state.update_data(size=1)
 
+    #Тестовое поле
+    await state.update_data(faculties_test='')
+
     await message.answer(text=create_message(params='', type='start'), reply_markup=select_date_keyboard)
 
 
@@ -96,7 +100,6 @@ async def callback_calendar_keyboard(callback_query: CallbackQuery, callback_dat
     if selected:
         await state.update_data(date_from_user=date.strftime("%Y-%m-%d"))
         data = await state.get_data()
-        # TODO сообщение формируется вот таким диким образом, каждый раз в функции выдачи клавиатуры, можешь подсказать как это лучше вынести?
         await callback_query.message.edit_text(text=create_message(params=data, type='select_les_num'),
                                                reply_markup=await create_lesson_num_keyboard())
 
@@ -111,9 +114,11 @@ async def show_lesson_num_keyboard(callback_query: CallbackQuery):
 async def show_faculties_keyboard(callback_query: CallbackQuery, state: FSMContext):
     '''Функция отправляет клавиатуру с выбором факультетов после выбора пары'''
     await state.update_data(lesson_num=compare_lesson_num(str(callback_query.data)))
+    faculties = await create_faculties_state()
+    await state.update_data(faculties_test=faculties)
     data = await state.get_data()
     await callback_query.message.edit_text(text=create_message(params=data, type='select_faculty'),
-                                           reply_markup=await create_faculties_keyboard())
+                                           reply_markup=await create_faculties_keyboard_test(data["faculties_test"]))
 
 @callback_handlers_router.callback_query(F.data.startswith('fac_'))
 async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMContext):
@@ -128,22 +133,20 @@ async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMC
     await state.update_data(faculties=updated_faculties)
     #===================================================
 
+    faculties_test = data["faculties_test"]
+
     #Получаем текст кнопки, при нажатии
-    updated_faculties_short_name = data["faculties_short_name"]
     inline_keyboard = callback_query.message.reply_markup.inline_keyboard
     for row in inline_keyboard:
         for button in row:
             if button.callback_data == callback_query.data:
                 button_text = button.text
-                if button_text in updated_faculties_short_name:
-                    await callback_query.answer(f"{button_text} уже добавлен")
-                    break
-                updated_faculties_short_name += str(button_text) + ' '
-    #Добавляем текст кнопки (т.е. название факультета) в стор, откуда потом покажем пользователю, выбранные им факультеты
-    await state.update_data(faculties_short_name=updated_faculties_short_name)
-    #Реагируем на нажатие кнопки и показыавем текст кнопки (т.е. название факультета)
-    await callback_query.answer(button_text)
-    #======================================================================
+                for i in range(len(faculties_test)):
+                    if faculties_test[i]["short_name"] == button_text or '✅'+faculties_test[i]["short_name"] == button_text:
+                        faculties_test[i]["is_selected"] = not(faculties_test[i]["is_selected"])
+                        print('lol = ', faculties_test[i]["short_name"], ' state = ', faculties_test[i]["is_selected"])
+                        await callback_query.message.edit_reply_markup(
+                            reply_markup=await change_faculties_keyboard(faculties_test))
 
 @callback_handlers_router.callback_query(F.data == 'select_faculties')
 async def show_faculties_keyboard(callback_query: CallbackQuery):
