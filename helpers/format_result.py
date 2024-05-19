@@ -1,11 +1,14 @@
 from consts.buttons import NO_FREE_PLACES
 
 
-def format_result(response) -> str:
+def format_result(response, user_data) -> str:
     """Функция получает на вход респонс с апи и форматирует его для вывода"""
     if response is None:
         return NO_FREE_PLACES
 
+    print('user_data = ', user_data['equipments_name'])
+
+    print('response = ', response)
     free_paces = ('<code>  №   |Факультет| Мест</code>\n'
                   '<code>-----------------------</code>\n')
     for i in range(len(response)):
