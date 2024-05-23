@@ -65,7 +65,8 @@ async def callback_calendar_keyboard(callback_query: CallbackQuery, callback_dat
     calendar.set_dates_range(datetime(current_date.year, current_date.month, current_date.day), datetime(2025, 12, 31))
     selected, date = await calendar.process_selection(callback_query, callback_data)
     if selected:
-        await state.update_data(date_from_user=date.strftime("%Y-%m-%d"))
+        await state.update_data(date=date.strftime("%d.%m.%Y"))
+        await state.update_data(date_for_request=date.strftime("%Y-%m-%d"))
         data = await state.get_data()
         await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_les_num'),
                                                reply_markup=await create_lesson_num_keyboard())
@@ -112,6 +113,8 @@ async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMC
                 button_text = button.text
                 if button_text not in updated_faculties_short_name and str(button_text)[1:] not in updated_faculties_short_name:
                     updated_faculties_short_name += str(button_text) + ' '
+                elif str(button_text)[1:] in updated_faculties_short_name:
+                    updated_faculties_short_name = updated_faculties_short_name.replace(str(button_text)[1:], '')
                 for i in range(len(faculties_state)):
                     if faculties_state[i]["short_name"] == button_text or '✅'+faculties_state[i]["short_name"] == button_text:
                         faculties_state[i]["is_selected"] = not(faculties_state[i]["is_selected"])
@@ -182,7 +185,8 @@ async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMC
                 button_text = button.text
                 if button_text not in updated_equipments_name and str(button_text)[1:] not in updated_equipments_name:
                     updated_equipments_name += str(button_text) + ' '
-
+                elif str(button_text)[1:] in updated_equipments_name:
+                    updated_equipments_name = updated_equipments_name.replace(str(button_text)[1:], '')
                 for i in range(len(equipments_state)):
                     if equipments_state[i]["name"] == button_text or '✅'+equipments_state[i]["name"] == button_text:
                         equipments_state[i]["is_selected"] = not(equipments_state[i]["is_selected"])
@@ -211,7 +215,7 @@ async def show_result(callback_query: CallbackQuery, state: FSMContext):
     data = await state.get_data()
 
     params_to_request = {
-        'date': data["date_from_user"],
+        'date': data["date_for_request"],
         'number': data["lesson_num"],
         'faculty': data["faculties"],
         'equipment': data["equipments"],
