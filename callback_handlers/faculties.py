@@ -43,9 +43,9 @@ async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMC
             if button.callback_data == callback_query.data:
                 button_text = button.text
                 if button_text not in updated_faculties_short_name and str(button_text)[1:] not in updated_faculties_short_name:
-                    updated_faculties_short_name += str(button_text) + ' '
+                    updated_faculties_short_name += str(button_text) + ', '
                 elif str(button_text)[1:] in updated_faculties_short_name:
-                    updated_faculties_short_name = updated_faculties_short_name.replace(str(button_text)[1:]+' ', '')
+                    updated_faculties_short_name = updated_faculties_short_name.replace(str(button_text)[1:]+ ', ', '')
                 for i in range(len(faculties_state)):
                     if faculties_state[i]["short_name"] == button_text or '✅'+faculties_state[i]["short_name"] == button_text:
                         faculties_state[i]["is_selected"] = not(faculties_state[i]["is_selected"])

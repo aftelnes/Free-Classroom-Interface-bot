@@ -12,6 +12,7 @@ async def show_size_keyboard(callback_query: CallbackQuery, state: FSMContext):
     """Фнукия отправляет клавиатуру с выбором кол-ва необходимых посадочных мест"""
     data = await state.get_data()
 
+
     if data["equipments_name"] == '':
         await state.update_data(equipments_name='Любое')
     data = await state.get_data()

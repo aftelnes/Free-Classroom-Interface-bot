@@ -38,11 +38,10 @@ def format_result(response, user_data) -> str:
     if user_data['equipments_name'] != '':
         print('user_data["equipments_name"] = ', user_data['equipments_name'])
         # Форматируем строку с оснащением пользователя до нужного формата
-        result = re.findall(r'[А-ЯA-Z][^А-ЯA-Z]*', user_data['equipments_name'])
-        formatted_user_equipments = '\n'.join(result)
+        formatted_user_equipments = user_data['equipments_name'].replace(', ', '\n')
 
         free_paces += (f'<code>-----------------------</code>\n'
-                       f'<code>В аудиториях имеются:</code>\n'
+                       f'<code>Оснащение аудиторий:</code>\n'
                        f'<code>{formatted_user_equipments}</code>\n')
 
     return free_paces

@@ -36,16 +36,15 @@ async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMC
     if updated_equipments_name == 'Любое':
         updated_equipments_name = ''
 
-
     inline_keyboard = callback_query.message.reply_markup.inline_keyboard
     for row in inline_keyboard:
         for button in row:
             if button.callback_data == callback_query.data:
                 button_text = button.text
                 if button_text not in updated_equipments_name and str(button_text)[1:] not in updated_equipments_name:
-                    updated_equipments_name += str(button_text) + ' '
+                    updated_equipments_name += str(button_text) + ', '
                 elif str(button_text)[1:] in updated_equipments_name:
-                    updated_equipments_name = updated_equipments_name.replace(str(button_text)[1:] + ' ', '')
+                    updated_equipments_name = updated_equipments_name.replace(str(button_text)[1:] + ', ', '')
                 for i in range(len(equipments_state)):
                     if equipments_state[i]["name"] == button_text or '✅'+equipments_state[i]["name"] == button_text:
                         equipments_state[i]["is_selected"] = not(equipments_state[i]["is_selected"])
