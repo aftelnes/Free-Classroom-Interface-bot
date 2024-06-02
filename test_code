@@ -1,0 +1,54 @@
+#Тестирую другой вариант календаря, не обращать внимания
+from aiogram_calendar import DialogCalendar, DialogCalendarCallback
+# @callback_handlers_router.message(F.text.lower() == 'dialog calendar w month')
+# async def dialog_cal_handler_month(message: types.Message):
+#     await message.answer(
+#         "Please <b>select</b> a date:\n—————————————————— ",
+#         reply_markup=await DialogCalendar(
+#             locale='ru_ru'
+#         ).start_calendar(year=2024, month=4)
+#     )
+# @callback_handlers_router.callback_query(DialogCalendarCallback.filter())
+# async def process_dialog_calendar(callback_query: CallbackQuery, callback_data: CallbackData):
+#     selected, date = await DialogCalendar(
+#         locale='ru_RU'
+#     ).process_selection(callback_query, callback_data)
+#     if selected:
+#         await callback_query.message.answer(
+#             f'You selected {date.strftime("%d/%m/%Y")}',
+#         )
+#
+# @callback_handlers_router.message(F.text.lower() == 'navigation calendar')
+# async def nav_cal_handler(message: types.Message):
+#     await message.answer(
+#         "Please select a date: ",
+#         reply_markup=await SimpleCalendar(locale='ru_RU').start_calendar()
+#     )
+
+#=================================
+
+#==============================================================================================
+# @callback_handlers_router.callback_query(F.data.startswith('equip_'))
+# async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMContext):
+#     """Функция реагирует на выбор оснащения"""
+#     data = await state.get_data()
+#     updated_equipments = data["equipments"]
+#     updated_equipments.append(int(callback_query.data[6:]))
+#     await state.update_data(equipments=updated_equipments)
+#
+#
+#     updated_equipments_name = data["equipments_name"]
+#     inline_keyboard = callback_query.message.reply_markup.inline_keyboard
+#     for row in inline_keyboard:
+#         for button in row:
+#             if button.callback_data == callback_query.data:
+#                 button_text = button.text
+#                 if button_text in updated_equipments_name:
+#                     await callback_query.answer(f"{button_text} уже добавлен")
+#                     break
+#                 updated_equipments_name += str(button_text) + ' '
+#
+#     await state.update_data(equipments_name=updated_equipments_name)
+#
+#     await callback_query.answer(button_text)
+#=============================================================================================
