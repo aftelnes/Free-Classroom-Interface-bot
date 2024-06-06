@@ -6,17 +6,36 @@ from consts.buttons import BACK_BTN, CONTINUE_BTN
 from api.consts import FACULTIES_ENDPOINT
 
 
-async def create_faculties_keyboard():
-    """Функция создаёт клавиатуру с факультетами"""
+async def create_faculties_state():
+    """Функция создаёт массив объектов, с состоянием нажатия на кнопку"""
     faculties = await get_data(endpoint=FACULTIES_ENDPOINT)
 
-    faculties_ary = InlineKeyboardBuilder()
+    faculties_ary_state = []
+
     for i in range(len(faculties)):
         if faculties[i]['inactive'] is False:
-            faculties_ary.add(InlineKeyboardButton(text=faculties[i]["short_name"],
-                                                   callback_data="fac_" + str(faculties[i]["id"])))
+            faculties_ary_state.append({"short_name": faculties[i]["short_name"],
+                                        "is_selected": False, "id": str(faculties[i]["id"])})
 
-    faculties_ary.add(InlineKeyboardButton(text=CONTINUE_BTN, callback_data='select_equipments'))
-    faculties_ary.add(InlineKeyboardButton(text=BACK_BTN, callback_data='back_to_select_lesson_num'))
+    return faculties_ary_state
 
-    return faculties_ary.adjust((3)).as_markup()
+
+async def create_faculties_keyboard(faculties_ary_state):
+    """Фукция создаёт клавиатуру факультетов"""
+    faculties_keyboard = InlineKeyboardBuilder()
+    for i in range(len(faculties_ary_state)):
+        if faculties_ary_state[i]["is_selected"]:
+            faculties_keyboard.add(InlineKeyboardButton(text='✅' + faculties_ary_state[i]["short_name"],
+                                                        callback_data="fac_" + faculties_ary_state[i]["id"]))
+
+        elif not faculties_ary_state[i]["is_selected"] and faculties_ary_state[i]["short_name"][0] == "✅":
+            faculties_keyboard.add(InlineKeyboardButton(text=str(faculties_ary_state[i]["short_name"])[1:],
+                                                        callback_data="fac_" + faculties_ary_state[i]["id"]))
+        else:
+            faculties_keyboard.add(InlineKeyboardButton(text=faculties_ary_state[i]["short_name"],
+                                                        callback_data="fac_" + faculties_ary_state[i]["id"]))
+
+    faculties_keyboard.add(InlineKeyboardButton(text=CONTINUE_BTN, callback_data='select_equipments'))
+    faculties_keyboard.add(InlineKeyboardButton(text=BACK_BTN, callback_data='back_to_select_lesson_num'))
+
+    return faculties_keyboard.adjust((3)).as_markup()

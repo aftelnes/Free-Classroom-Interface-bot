@@ -1,5 +1,5 @@
 """
-Модуль со статичными клавиатурами.
+Модуль со статическимиклавиатурами.
 """
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -35,14 +35,14 @@ select_size_keyboard = InlineKeyboardMarkup(inline_keyboard=[
             callback_data='size_80'
         )
     ],
-[
-        InlineKeyboardButton(
-            text=CONTINUE_BTN,
-            callback_data='all_data_is_selected'
-        ),
+    [
         InlineKeyboardButton(
             text=BACK_BTN,
             callback_data='select_equipments'
+        ),
+        InlineKeyboardButton(
+            text=FIND_BTN,
+            callback_data='get_free_classrooms'
         ),
     ]
 ])

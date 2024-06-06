@@ -1,12 +1,23 @@
 from consts.buttons import NO_FREE_PLACES
+import re
 
-
-def format_result(response) -> str:
+def format_result(response, user_data) -> str:
     """Функция получает на вход респонс с апи и форматирует его для вывода"""
-    if response is None:
+    if response is None or response == []:
         return NO_FREE_PLACES
 
-    free_paces = ('<code>  №   |Факультет| Мест</code>\n'
+    free_paces = ''
+
+    user_lesson_num = user_data['lesson_num']
+    user_date = user_data['date']
+
+    free_paces += (
+        f'<code>Дата: {user_date}</code>\n'
+        f'<code>Пара: {user_lesson_num}</code>\n'
+        f'<code>-----------------------</code>\n'
+    )
+
+    free_paces += ('<code>  №   |Факультет| Мест</code>\n'
                   '<code>-----------------------</code>\n')
     for i in range(len(response)):
         size = str(response[i]["size"])
@@ -23,5 +34,14 @@ def format_result(response) -> str:
             short_name += ' '
 
         free_paces += f'<code>{classroom_number}| {short_name}| {size}</code>\n'
+
+    if user_data['equipments_name'] != '':
+        # Форматируем строку с оснащением пользователя до нужного формата
+        result = re.findall(r'[А-ЯA-Z][^А-ЯA-Z]*', user_data['equipments_name'])
+        formatted_user_equipments = '\n'.join(result)
+
+        free_paces += (f'<code>-----------------------</code>\n'
+                       f'<code>В аудиториях имеются:</code>\n'
+                       f'<code>{formatted_user_equipments}</code>\n')
 
     return free_paces
