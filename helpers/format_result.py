@@ -1,5 +1,5 @@
 from consts.buttons import NO_FREE_PLACES
-import re
+
 
 def format_result(response, user_data) -> str:
     """Функция получает на вход респонс с апи и форматирует его для вывода"""
@@ -17,8 +17,7 @@ def format_result(response, user_data) -> str:
         f'<code>-----------------------</code>\n'
     )
 
-    free_paces += ('<code>  №   |Факультет| Мест</code>\n'
-                  '<code>-----------------------</code>\n')
+    free_paces += '<code>  №   |Факультет| Мест</code>\n<code>-----------------------</code>\n'
     for i in range(len(response)):
         size = str(response[i]["size"])
         classroom_number = str(response[i]["name"])
@@ -36,7 +35,6 @@ def format_result(response, user_data) -> str:
         free_paces += f'<code>{classroom_number}| {short_name}| {size}</code>\n'
 
     if user_data['equipments_name'] != '':
-        print('user_data["equipments_name"] = ', user_data['equipments_name'])
         # Форматируем строку с оснащением пользователя до нужного формата
         formatted_user_equipments = user_data['equipments_name'].replace(', ', '\n')
 

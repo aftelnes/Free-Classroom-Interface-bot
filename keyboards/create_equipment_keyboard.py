@@ -5,6 +5,7 @@ from helpers.get_data import get_data
 from consts.buttons import BACK_BTN, CONTINUE_BTN
 from api.consts import EQUIPMENTS_ENDPOINT
 
+
 async def create_equipments_state():
     """Функция создаёт массив объектов, с состоянием нажатия на кнопку"""
     equipments = await get_data(endpoint=EQUIPMENTS_ENDPOINT)
@@ -31,12 +32,11 @@ async def create_equipments_keyboard(equipments_ary_state):
             equipments_keyboard.add(InlineKeyboardButton(text=equipments_ary_state[i]["name"],
                                                          callback_data="equip_" + equipments_ary_state[i]["id"]))
 
-
     equipments_keyboard.adjust((2)).as_markup()
 
     equipments_keyboard.row(
         InlineKeyboardButton(text=BACK_BTN, callback_data='select_faculties'),
-                 InlineKeyboardButton(text=CONTINUE_BTN, callback_data='select_size')
+        InlineKeyboardButton(text=CONTINUE_BTN, callback_data='select_size')
     )
 
     return equipments_keyboard.as_markup()

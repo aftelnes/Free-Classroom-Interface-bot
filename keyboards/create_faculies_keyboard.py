@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from helpers.get_data import get_data
@@ -40,8 +40,7 @@ async def create_faculties_keyboard(faculties_ary_state):
 
     faculties_keyboard.row(
         InlineKeyboardButton(text=BACK_BTN, callback_data='back_to_select_lesson_num'),
-                InlineKeyboardButton(text=CONTINUE_BTN, callback_data='select_equipments')
-
+        InlineKeyboardButton(text=CONTINUE_BTN, callback_data='select_equipments')
     )
 
     return faculties_keyboard.as_markup()

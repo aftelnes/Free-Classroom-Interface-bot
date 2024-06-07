@@ -14,6 +14,7 @@ select_date_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ]
 ])
 
+
 select_size_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [
         InlineKeyboardButton(
@@ -67,7 +68,7 @@ result_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [
         InlineKeyboardButton(
             text=RETURN_TO_START_BTN,
-            callback_data='select_date'
+            callback_data='select_month'
         ),
     ]
 ])
