@@ -11,11 +11,11 @@ from aiogram.types import InlineKeyboardButton
 from cube_bot_calendar.consts.consts import MONTHS, WEEK_DAYS
 
 
-async def create_months_keyboard():
+async def create_months_keyboard(from_month=1):
+    """Функция создаёт клавиатуру с календарём"""
     months_keyboard = InlineKeyboardBuilder()
 
-    current_month = datetime.now().month
-    for i in range(current_month, 13):
+    for i in range(from_month, 13):
         months_keyboard.add(InlineKeyboardButton(text=f'{MONTHS[i]}',
                                                  callback_data=f'month_{i}'))
     months_keyboard.adjust((3)).as_markup()
@@ -26,6 +26,7 @@ async def create_months_keyboard():
 
 
 async def create_days_keyboard(year, month):
+    """Функция создаёт клавиатуру с днями месяца"""
     days = InlineKeyboardBuilder()
 
     month_start, number_of_days = calendar.monthrange(year, month)

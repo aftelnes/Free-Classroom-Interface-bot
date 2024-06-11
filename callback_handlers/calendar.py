@@ -9,8 +9,10 @@ from helpers.create_messages import create_message
 
 
 async def show_month_keyboard(callback_querry: CallbackQuery):
+    """Функция показывает клавиатуру с календарём"""
+    current_month = datetime.now().month
     await callback_querry.message.edit_text(text=create_message(params={}, type_mes='select_month'),
-                                            reply_markup=await create_months_keyboard())
+                                            reply_markup=await create_months_keyboard(from_month=current_month))
 
 
 async def show_days_keyboard(callback_query: CallbackQuery, state: FSMContext):
