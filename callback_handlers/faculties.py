@@ -4,7 +4,7 @@
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from keyboards.create_faculies_keyboard import (create_faculties_state, create_faculties_keyboard)
+from keyboards.create_faculies_keyboard import create_faculties_state, create_faculties_keyboard
 from helpers.create_messages import create_message
 
 

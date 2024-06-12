@@ -3,6 +3,7 @@
 """
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
 from consts.buttons import *
 
 select_date_keyboard = InlineKeyboardMarkup(inline_keyboard=[

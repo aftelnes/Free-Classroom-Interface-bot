@@ -23,7 +23,8 @@ async def show_days_keyboard(callback_query: CallbackQuery, state: FSMContext):
     data = await state.get_data()
 
     await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_day'),
-                                           reply_markup=await create_days_keyboard(2024, int(selected_month)))
+                                           reply_markup=await create_days_keyboard(2024, int(selected_month),
+                                                                                   over_day_symbol='❎'))
 
 
 async def back_to_show_day_keyboard(callback_query: CallbackQuery, state: FSMContext):
@@ -33,18 +34,17 @@ async def back_to_show_day_keyboard(callback_query: CallbackQuery, state: FSMCon
     data = await state.get_data()
     print()
     await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_day'),
-                                           reply_markup=await create_days_keyboard(2024, int(selected_month)))
+                                           reply_markup=await create_days_keyboard(2024, int(selected_month),
+                                                                                   over_day_symbol='❎'))
 
 
 async def callback_days_keyboard(callback_query: CallbackQuery, state: FSMContext):
     """Функция отлавливает нажатие на определённый день"""
     current_date = datetime.now()
 
-    data = await state.get_data()
-    selected_month = data["month"]
     selected_day = callback_query.data[4:]
 
-    if int(selected_month) == current_date.month and int(selected_day) < current_date.day:
+    if selected_day == 'is_over':
         await callback_query.answer(text='Этот день закончился!')
         return
 
