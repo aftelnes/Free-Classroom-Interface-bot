@@ -2,17 +2,22 @@ from datetime import datetime
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from keyboards.create_lesson_num_keyboard import create_lesson_num_keyboard
 from cube_bot_calendar.consts.consts import MONTHS
 from cube_bot_calendar.create_calendar import create_months_keyboard, create_days_keyboard
 from helpers.create_messages import create_message
 
+from helpers.show_not_over_lessons import show_not_over_lessons
 
 async def show_month_keyboard(callback_querry: CallbackQuery):
     """Функция показывает клавиатуру с календарём"""
     current_month = datetime.now().month
-    await callback_querry.message.edit_text(text=create_message(params={}, type_mes='select_month'),
-                                            reply_markup=await create_months_keyboard(from_month=current_month))
+    await callback_querry.message.edit_text(
+        text=create_message(
+            params={},
+            type_mes='select_month'
+        ),
+        reply_markup=await create_months_keyboard(from_month=current_month)
+    )
 
 
 async def show_days_keyboard(callback_query: CallbackQuery, state: FSMContext):
@@ -22,9 +27,14 @@ async def show_days_keyboard(callback_query: CallbackQuery, state: FSMContext):
     await state.update_data(month_name=MONTHS[int(selected_month)])
     data = await state.get_data()
 
-    await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_day'),
-                                           reply_markup=await create_days_keyboard(2024, int(selected_month),
-                                                                                   over_day_symbol='❎'))
+    await callback_query.message.edit_text(
+        text=create_message(params=data, type_mes='select_day'),
+        reply_markup=await create_days_keyboard(
+            year=2024,
+            month=int(selected_month),
+            over_day_symbol='❎'
+        )
+    )
 
 
 async def back_to_show_day_keyboard(callback_query: CallbackQuery, state: FSMContext):
@@ -32,10 +42,14 @@ async def back_to_show_day_keyboard(callback_query: CallbackQuery, state: FSMCon
     data = await state.get_data()
     selected_month = data["month"]
     data = await state.get_data()
-    print()
-    await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_day'),
-                                           reply_markup=await create_days_keyboard(2024, int(selected_month),
-                                                                                   over_day_symbol='❎'))
+    await callback_query.message.edit_text(
+        text=create_message(params=data, type_mes='select_day'),
+        reply_markup=await create_days_keyboard(
+            year=2024,
+            month=int(selected_month),
+            over_day_symbol='❎'
+        )
+    )
 
 
 async def callback_days_keyboard(callback_query: CallbackQuery, state: FSMContext):
@@ -54,22 +68,26 @@ async def callback_days_keyboard(callback_query: CallbackQuery, state: FSMContex
     date_for_request = datetime(current_date.year, int(data["month"]), int(selected_day)).strftime("%Y-%m-%d")
     await state.update_data(date=selected_date)
     await state.update_data(date_for_request=date_for_request)
-    data = await state.get_data()
 
-    await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_les_num'),
-                                           reply_markup=await create_lesson_num_keyboard())
-
+    await show_not_over_lessons(
+        callback_query=callback_query,
+        state=state,
+        selected_date=selected_date
+    )
 
 async def callback_today_button(callback_query: CallbackQuery, state: FSMContext):
     """Функция обработки кнопки 'сегодня'"""
+    current_date = datetime.now()
 
-    selected_month = datetime.now().month
+    selected_month = current_date.month
     month_name = MONTHS[int(selected_month)]
     await state.update_data(month_name=month_name)
-    await state.update_data(month=datetime.now().month)
-    await state.update_data(date=datetime.now().strftime("%d.%m.%Y"))
-    await state.update_data(date_for_request=datetime.now().strftime("%Y-%m-%d"))
-    data = await state.get_data()
+    await state.update_data(month=current_date.month)
+    await state.update_data(date=current_date.strftime("%d.%m.%Y"))
+    await state.update_data(date_for_request=current_date.strftime("%Y-%m-%d"))
 
-    await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_les_num'),
-                                           reply_markup=await create_lesson_num_keyboard())
+    await show_not_over_lessons(
+        callback_query=callback_query,
+        state=state,
+        selected_date=current_date.strftime("%d.%m.%Y")
+    )

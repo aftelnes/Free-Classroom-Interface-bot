@@ -18,8 +18,13 @@ async def show_equipment_keyboard(callback_query: CallbackQuery, state: FSMConte
         await state.update_data(faculties_short_name='Все')
     data = await state.get_data()
 
-    await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_equipment'),
-                                           reply_markup=await create_equipments_keyboard(data["equipments_state"]))
+    await callback_query.message.edit_text(
+        text=create_message(
+            params=data,
+            type_mes='select_equipment'
+        ),
+        reply_markup=await create_equipments_keyboard(equipments_ary_state=data["equipments_state"])
+    )
 
 async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMContext):
     """Функция реагирует на выбор оснащения"""
@@ -50,11 +55,16 @@ async def callback_equipment_keyboard(callback_query: CallbackQuery, state: FSMC
                         equipments_state[i]["is_selected"] = not(equipments_state[i]["is_selected"])
                         await state.update_data(equipments_name=updated_equipments_name)
                         await callback_query.message.edit_reply_markup(
-                            reply_markup=await create_equipments_keyboard(equipments_state)
+                            reply_markup=await create_equipments_keyboard(equipments_ary_state=equipments_state)
                         )
 
 async def back_to_show_equipments_keyboard(callback_query: CallbackQuery, state: FSMContext):
     """Функция отправляет клавиатуру с выбором оснащенияп осле нажатия на кнопку "назад" в меню выбора вместимости"""
     data = await state.get_data()
-    await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_equipment'),
-                                           reply_markup=await create_equipments_keyboard(data["equipments_state"]))
+    await callback_query.message.edit_text(
+        text=create_message(
+            params=data,
+            type_mes='select_equipment'
+        ),
+        reply_markup=await create_equipments_keyboard(equipments_ary_state=data["equipments_state"])
+    )

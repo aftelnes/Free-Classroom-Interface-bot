@@ -15,8 +15,13 @@ async def show_faculties_keyboard(callback_query: CallbackQuery, state: FSMConte
     await state.update_data(faculties_state=faculties)
     data = await state.get_data()
 
-    await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_faculty'),
-                                           reply_markup=await create_faculties_keyboard(data["faculties_state"]))
+    await callback_query.message.edit_text(
+        text=create_message(
+            params=data,
+            type_mes='select_faculty'
+        ),
+        reply_markup=await create_faculties_keyboard(faculties_ary_state=data["faculties_state"])
+    )
 
 
 async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMContext):
@@ -51,11 +56,16 @@ async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMC
                         faculties_state[i]["is_selected"] = not(faculties_state[i]["is_selected"])
                         await state.update_data(faculties_short_name=updated_faculties_short_name)
                         await callback_query.message.edit_reply_markup(
-                            reply_markup=await create_faculties_keyboard(faculties_state))
+                            reply_markup=await create_faculties_keyboard(faculties_ary_state=faculties_state))
 
 
 async def back_to_show_faculties_keyboard(callback_query: CallbackQuery, state: FSMContext):
     """Функция отправляет клавиатуру с выбором факультетов после нажатия на кнопку "назад" в меню выбора оснащения"""
     data = await state.get_data()
-    await callback_query.message.edit_text(text=create_message(params=data, type_mes='select_faculty'),
-                                           reply_markup=await create_faculties_keyboard(data["faculties_state"]))
+    await callback_query.message.edit_text(
+        text=create_message(
+            params=data,
+            type_mes='select_faculty'
+        ),
+        reply_markup=await create_faculties_keyboard(faculties_ary_state=data["faculties_state"])
+    )

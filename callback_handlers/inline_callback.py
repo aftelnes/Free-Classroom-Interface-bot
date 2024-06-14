@@ -42,7 +42,13 @@ async def start_cmd(message: types.Message, state: FSMContext):
     await state.update_data(date='')
     await state.update_data(date_for_request='')
 
-    await message.answer(text=create_message(params={}, type_mes='start'), reply_markup=select_month_keyboard)
+    await message.answer(
+        text=create_message(
+            params={},
+            type_mes='start'
+        ),
+        reply_markup=select_month_keyboard
+    )
 
 
 @callback_handlers_router.callback_query()
