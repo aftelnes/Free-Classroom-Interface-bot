@@ -56,7 +56,7 @@ async def cath_all_callback(callback_query: CallbackQuery, state: FSMContext):
     """Обработчик всех callback"""
 
     if callback_query.data == 'select_month':
-        await show_month_keyboard(callback_query)
+        await show_month_keyboard(callback_query, state)
     elif 'month_' in callback_query.data:
         await show_days_keyboard(callback_query, state)
     elif callback_query.data == 'today':

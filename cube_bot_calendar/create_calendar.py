@@ -7,8 +7,11 @@ import calendar
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
 
-
 from cube_bot_calendar.consts.consts import MONTHS, WEEK_DAYS
+
+from consts.buttons import BACK_BTN
+
+from helpers.compare_time import compare_time
 
 
 async def create_months_keyboard(from_month=1, to_month=12):
@@ -31,7 +34,13 @@ async def create_months_keyboard(from_month=1, to_month=12):
     return months_keyboard.as_markup()
 
 
-async def create_days_keyboard(year, month, from_current_day=True, over_day_symbol='✖️'):
+async def create_days_keyboard(
+        year,
+        month,
+        from_current_day=True,
+        over_day_symbol='✖️',
+        over_day_time='20:10'
+):
     """Функция создаёт клавиатуру с днями месяца"""
     days = InlineKeyboardBuilder()
 
@@ -50,12 +59,18 @@ async def create_days_keyboard(year, month, from_current_day=True, over_day_symb
         ))
 
     if from_current_day and month == datetime.now().month:
-        for i in range(1, datetime.now().day):
+
+        # last_over_day - день, до которого нужно блокировать выбор (включительно)
+        last_over_day = datetime.now().day
+        if compare_time(over_day_time, datetime.now().time().strftime('%H:%M')):
+            last_over_day += 1
+
+        for i in range(1, last_over_day):
             days.add(InlineKeyboardButton(
                 text=f'{over_day_symbol}',
                 callback_data='day_is_over'
             ))
-        for i in range(datetime.now().day, number_of_days + 1):
+        for i in range(last_over_day, number_of_days + 1):
             days.add(InlineKeyboardButton(
                 text=f'{i}',
                 callback_data=f'day_{i}'
@@ -78,15 +93,18 @@ async def create_days_keyboard(year, month, from_current_day=True, over_day_symb
 
     days.adjust((7)).as_markup()
 
+    today = datetime.now().strftime("%d.%m.%Y")
+    days.row(InlineKeyboardButton(
+            text=f'▶️ Сегодня ({today}) ◀️',
+            callback_data='today'
+        ))
+
     days.row(
         InlineKeyboardButton(
-            text='Назад',
+            text=BACK_BTN,
             callback_data='select_month'
         ),
-        InlineKeyboardButton(
-            text='Сегодня',
-            callback_data='today'
-        )
+
     )
 
     return days.as_markup()

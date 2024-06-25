@@ -13,7 +13,6 @@ async def create_lesson_num_keyboard(selected_date):
         lesson_num = await get_data(endpoint=LESSONS_NUM_ENDPOINT)
         current_date = datetime.now()
         current_time = current_date.time().strftime('%H:%M')
-
         lesson_num_ary = InlineKeyboardBuilder()
 
         # Если выбранный день сегодняшний, то ограничиваем показ пар в зависимости от времени

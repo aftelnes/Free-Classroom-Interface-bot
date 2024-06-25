@@ -7,10 +7,19 @@ from cube_bot_calendar.create_calendar import create_months_keyboard, create_day
 from helpers.create_messages import create_message
 
 from helpers.show_not_over_lessons import show_not_over_lessons
+from helpers.get_data import get_data
 
-async def show_month_keyboard(callback_querry: CallbackQuery):
+from api.consts import LESSONS_NUM_ENDPOINT
+
+
+async def show_month_keyboard(callback_querry: CallbackQuery, state: FSMContext):
     """Функция показывает клавиатуру с календарём"""
     current_month = datetime.now().month
+
+    #Узнаём время последней пары и записываем его в стейт
+    lessons = await get_data(endpoint=LESSONS_NUM_ENDPOINT)
+    await state.update_data(last_lesson_time=lessons[-1]['time'])
+
     await callback_querry.message.edit_text(
         text=create_message(
             params={},
@@ -32,7 +41,8 @@ async def show_days_keyboard(callback_query: CallbackQuery, state: FSMContext):
         reply_markup=await create_days_keyboard(
             year=2024,
             month=int(selected_month),
-            over_day_symbol='❎'
+            over_day_symbol='❎',
+            over_day_time=data["last_lesson_time"]
         )
     )
 
@@ -42,12 +52,14 @@ async def back_to_show_day_keyboard(callback_query: CallbackQuery, state: FSMCon
     data = await state.get_data()
     selected_month = data["month"]
     data = await state.get_data()
+
     await callback_query.message.edit_text(
         text=create_message(params=data, type_mes='select_day'),
         reply_markup=await create_days_keyboard(
             year=2024,
             month=int(selected_month),
-            over_day_symbol='❎'
+            over_day_symbol='❎',
+            over_day_time=data["last_lesson_time"]
         )
     )
 
