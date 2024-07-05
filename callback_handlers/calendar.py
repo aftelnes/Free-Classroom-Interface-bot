@@ -87,11 +87,30 @@ async def callback_days_keyboard(callback_query: CallbackQuery, state: FSMContex
         selected_date=selected_date
     )
 
-async def callback_today_button(callback_query: CallbackQuery, state: FSMContext):
-    """Функция обработки кнопки 'сегодня'"""
-    current_date = datetime.now()
-    print('lol = ', datetime.now())
-    print('kek = ', datetime.now() + timedelta(days=1))
+# async def callback_today_button(callback_query: CallbackQuery, state: FSMContext):
+#     """Функция обработки кнопки 'сегодня'"""
+#     current_date = datetime.now()
+#     print('lol = ', datetime.now())
+#     print('kek = ', datetime.now() + timedelta(days=1))
+#
+#     selected_month = current_date.month
+#     month_name = MONTHS[int(selected_month)]
+#     await state.update_data(month_name=month_name)
+#     await state.update_data(month=current_date.month)
+#     await state.update_data(date=current_date.strftime("%d.%m.%Y"))
+#     await state.update_data(date_for_request=current_date.strftime("%Y-%m-%d"))
+#
+#     await show_not_over_lessons(
+#         callback_query=callback_query,
+#         state=state,
+#         selected_date=current_date.strftime("%d.%m.%Y")
+#     )
+async def callback_today_and_tomorrow_button(callback_query: CallbackQuery, state: FSMContext, day_type):
+    """Функция обработки кнопки 'сегодня' и 'завтра'"""
+    if day_type == 'today':
+        current_date = datetime.now()
+    else:
+        current_date = datetime.now() + timedelta(days=1)
 
     selected_month = current_date.month
     month_name = MONTHS[int(selected_month)]

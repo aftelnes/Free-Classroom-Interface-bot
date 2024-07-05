@@ -17,7 +17,7 @@ from callback_handlers.equipments import show_equipment_keyboard, callback_equip
 from callback_handlers.size import show_size_keyboard, callback_size_keyboard
 from callback_handlers.result import show_result
 from callback_handlers.calendar import show_month_keyboard, show_days_keyboard, back_to_show_day_keyboard, \
-    callback_days_keyboard, callback_today_button
+    callback_days_keyboard, callback_today_and_tomorrow_button
 
 from cube_bot_calendar.consts.keyboard import select_month_keyboard
 
@@ -60,7 +60,9 @@ async def cath_all_callback(callback_query: CallbackQuery, state: FSMContext):
     elif 'month_' in callback_query.data:
         await show_days_keyboard(callback_query, state)
     elif callback_query.data == 'today':
-        await callback_today_button(callback_query, state)
+        await callback_today_and_tomorrow_button(callback_query, state, day_type='today')
+    elif callback_query.data == 'tomorrow':
+        await callback_today_and_tomorrow_button(callback_query, state, day_type='tomorrow')
     elif 'day_' in callback_query.data:
         await callback_days_keyboard(callback_query, state)
     elif callback_query.data == 'select_day':

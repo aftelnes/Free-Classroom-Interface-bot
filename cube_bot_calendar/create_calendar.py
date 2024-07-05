@@ -1,7 +1,7 @@
 """
 Модуль календаря
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 import calendar
 
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -14,11 +14,10 @@ from consts.buttons import BACK_BTN
 from helpers.compare_time import compare_time
 
 
-async def create_months_keyboard(from_month=1, to_month=12, over_day_time='20:10'):
+async def create_months_keyboard(from_month=1, to_month=12, over_day_time='21:30'):
     """Функция создаёт клавиатуру с календарём"""
     months_keyboard = InlineKeyboardBuilder()
 
-    today = datetime.now().strftime("%d.%m.%Y")
     for i in range(from_month, to_month + 1):
         months_keyboard.add(InlineKeyboardButton(
             text=f'{MONTHS[i]}',
@@ -28,11 +27,17 @@ async def create_months_keyboard(from_month=1, to_month=12, over_day_time='20:10
 
     # Если текущее время меньше времени окончания последней пары, то показывать кнопку "сегодня"
     if compare_time(datetime.now().time().strftime('%H:%M'), over_day_time):
+        today = datetime.now().strftime("%d.%m.%Y")
         months_keyboard.row(InlineKeyboardButton(
             text=f'▶️ Сегодня ({today}) ◀️',
             callback_data='today'
         ))
-
+    else:
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%d.%m.%Y")
+        months_keyboard.row(InlineKeyboardButton(
+            text=f'▶️ Завтра ({tomorrow}) ◀️',
+            callback_data='tomorrow'
+        ))
     return months_keyboard.as_markup()
 
 
@@ -41,7 +46,7 @@ async def create_days_keyboard(
         month,
         from_current_day=True,
         over_day_symbol='✖️',
-        over_day_time='20:10'
+        over_day_time='21:30'
 ):
     """Функция создаёт клавиатуру с днями месяца"""
     days = InlineKeyboardBuilder()
@@ -102,6 +107,12 @@ async def create_days_keyboard(
                 text=f'▶️ Сегодня ({today}) ◀️',
                 callback_data='today'
             ))
+    else:
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%d.%m.%Y")
+        days.row(InlineKeyboardButton(
+            text=f'▶️ Завтра ({tomorrow}) ◀️',
+            callback_data='tomorrow'
+        ))
 
     days.row(
         InlineKeyboardButton(
