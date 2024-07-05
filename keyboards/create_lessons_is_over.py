@@ -21,13 +21,3 @@ async def create_lessons_is_over_keyboard():
             callback_data='select_month')
         )
     return keyboard.as_markup()
-
-
-async def show_lessons_is_over(callback_query: CallbackQuery):
-    await callback_query.message.edit_text(
-        text=create_message(
-            params={},
-            type_mes='time_is_over'
-        ),
-        reply_markup=await create_lessons_is_over_keyboard()
-    )

@@ -13,7 +13,6 @@ async def show_equipment_keyboard(callback_query: CallbackQuery, state: FSMConte
     await state.update_data(equipments_state=equipments)
     data = await state.get_data()
 
-    #Если факультеты не выбраны, то добавит вместо этого слово "Все"
     if data["faculties_short_name"] == '':
         await state.update_data(faculties_short_name='Все')
     data = await state.get_data()

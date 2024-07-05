@@ -30,7 +30,7 @@ async def create_lesson_num_keyboard(selected_date):
                     callback_data="les_" + str(lesson_num[i]["id"])
                 ))
 
-        lesson_num_ary.adjust((3)).as_markup()
+        lesson_num_ary.adjust(3).as_markup()
 
         lesson_num_ary.row(InlineKeyboardButton(
             text=BACK_BTN,

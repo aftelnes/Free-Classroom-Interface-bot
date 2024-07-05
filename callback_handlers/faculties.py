@@ -41,6 +41,7 @@ async def callback_faculties_keyboard(callback_query: CallbackQuery, state: FSMC
     if updated_faculties_short_name == 'Все':
         updated_faculties_short_name = ''
 
+    # TODO попробовать join для добавляения запятой!! ', '.join([])
     #Получаем текст кнопки, при нажатии
     inline_keyboard = callback_query.message.reply_markup.inline_keyboard
     for row in inline_keyboard:

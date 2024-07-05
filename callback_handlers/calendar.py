@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
@@ -90,6 +90,8 @@ async def callback_days_keyboard(callback_query: CallbackQuery, state: FSMContex
 async def callback_today_button(callback_query: CallbackQuery, state: FSMContext):
     """Функция обработки кнопки 'сегодня'"""
     current_date = datetime.now()
+    print('lol = ', datetime.now())
+    print('kek = ', datetime.now() + timedelta(days=1))
 
     selected_month = current_date.month
     month_name = MONTHS[int(selected_month)]

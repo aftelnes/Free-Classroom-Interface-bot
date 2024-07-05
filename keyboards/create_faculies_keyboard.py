@@ -47,7 +47,7 @@ async def create_faculties_keyboard(faculties_ary_state):
                 callback_data="fac_" + faculties_ary_state[i]["id"]
             ))
 
-    faculties_keyboard.adjust((2)).as_markup()
+    faculties_keyboard.adjust(2).as_markup()
 
     faculties_keyboard.row(
         InlineKeyboardButton(

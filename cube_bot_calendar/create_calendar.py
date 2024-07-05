@@ -14,7 +14,7 @@ from consts.buttons import BACK_BTN
 from helpers.compare_time import compare_time
 
 
-async def create_months_keyboard(from_month=1, to_month=12):
+async def create_months_keyboard(from_month=1, to_month=12, over_day_time='20:10'):
     """Функция создаёт клавиатуру с календарём"""
     months_keyboard = InlineKeyboardBuilder()
 
@@ -24,12 +24,14 @@ async def create_months_keyboard(from_month=1, to_month=12):
             text=f'{MONTHS[i]}',
             callback_data=f'month_{i}'
         ))
-    months_keyboard.adjust((3)).as_markup()
+    months_keyboard.adjust(3).as_markup()
 
-    months_keyboard.row(InlineKeyboardButton(
-        text=f'▶️ Сегодня ({today}) ◀️',
-        callback_data='today'
-    ))
+    # Если текущее время меньше времени окончания последней пары, то показывать кнопку "сегодня"
+    if compare_time(datetime.now().time().strftime('%H:%M'), over_day_time):
+        months_keyboard.row(InlineKeyboardButton(
+            text=f'▶️ Сегодня ({today}) ◀️',
+            callback_data='today'
+        ))
 
     return months_keyboard.as_markup()
 
@@ -49,12 +51,12 @@ async def create_days_keyboard(
     for i in range(len(WEEK_DAYS)):
         days.add(InlineKeyboardButton(
             text=f'{WEEK_DAYS[i]}',
-            callback_data=f'_'
+            callback_data='_'
         ))
 
     for i in range(month_start):
         days.add(InlineKeyboardButton(
-            text=f' ',
+            text=' ',
             callback_data=f'_'
         ))
 
@@ -82,7 +84,6 @@ async def create_days_keyboard(
                 callback_data=f'day_{i}'
             ))
 
-    # last_empty_btns = ((month_start + number_of_days) // 7 + 1) * 7 - (month_start + number_of_days)
     last_empty_btns = 7 - datetime(year, month, number_of_days).weekday() - 1
 
     for i in range(last_empty_btns):
@@ -91,13 +92,16 @@ async def create_days_keyboard(
             callback_data=f'_'
         ))
 
-    days.adjust((7)).as_markup()
+    days.adjust(7).as_markup()
 
     today = datetime.now().strftime("%d.%m.%Y")
-    days.row(InlineKeyboardButton(
-            text=f'▶️ Сегодня ({today}) ◀️',
-            callback_data='today'
-        ))
+
+    # Если текущее время меньше времени окончания последней пары, то показывать кнопку "сегодня"
+    if compare_time(datetime.now().time().strftime('%H:%M'), over_day_time):
+        days.row(InlineKeyboardButton(
+                text=f'▶️ Сегодня ({today}) ◀️',
+                callback_data='today'
+            ))
 
     days.row(
         InlineKeyboardButton(
