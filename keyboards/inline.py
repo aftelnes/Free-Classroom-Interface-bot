@@ -39,13 +39,16 @@ select_size_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ],
     [
         InlineKeyboardButton(
-            text=BACK_BTN,
-            callback_data='back_to_select_equipments'
-        ),
-        InlineKeyboardButton(
             text=FIND_BTN,
             callback_data='get_free_classrooms'
         ),
+    ],
+    [
+        InlineKeyboardButton(
+            text=BACK_BTN,
+            callback_data='back_to_select_equipments'
+        ),
+
     ]
 ])
 

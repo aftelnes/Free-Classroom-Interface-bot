@@ -29,13 +29,13 @@ async def create_months_keyboard(from_month=1, to_month=12, over_day_time='21:30
     if compare_time(datetime.now().time().strftime('%H:%M'), over_day_time):
         today = datetime.now().strftime("%d.%m.%Y")
         months_keyboard.row(InlineKeyboardButton(
-            text=f'▶️ Сегодня ({today}) ◀️',
+            text=f'Сегодня ({today})',
             callback_data='today'
         ))
     else:
         tomorrow = (datetime.now() + timedelta(days=1)).strftime("%d.%m.%Y")
         months_keyboard.row(InlineKeyboardButton(
-            text=f'▶️ Завтра ({tomorrow}) ◀️',
+            text=f'Завтра ({tomorrow}) ️',
             callback_data='tomorrow'
         ))
     return months_keyboard.as_markup()
@@ -104,13 +104,13 @@ async def create_days_keyboard(
     # Если текущее время меньше времени окончания последней пары, то показывать кнопку "сегодня"
     if compare_time(datetime.now().time().strftime('%H:%M'), over_day_time):
         days.row(InlineKeyboardButton(
-                text=f'▶️ Сегодня ({today}) ◀️',
+                text=f'Сегодня ({today})',
                 callback_data='today'
             ))
     else:
         tomorrow = (datetime.now() + timedelta(days=1)).strftime("%d.%m.%Y")
         days.row(InlineKeyboardButton(
-            text=f'▶️ Завтра ({tomorrow}) ◀️',
+            text=f'Завтра ({tomorrow})',
             callback_data='tomorrow'
         ))
 
